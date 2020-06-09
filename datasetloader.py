@@ -25,7 +25,7 @@ def pil_loader(path):
 
 class ROD(VisionDataset):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, DATASET_TARGET_PATH = "", blacklisted_classes=[]):
+    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[]):
         super(ROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = split # This defines the split you are going to use
@@ -41,7 +41,7 @@ class ROD(VisionDataset):
         - Labels should start from 0, so for Caltech you will have lables 0...100 (excluding the background class) 
         '''
         
-        split_path = os.path.join(DATASET_TARGET_PATH, split+".txt")  # 
+        split_path = os.path.join(root, split+".txt")  # 
         split_file = np.loadtxt(split_path, dtype='str')
         
 
@@ -52,8 +52,8 @@ class ROD(VisionDataset):
           if class_label in blacklisted_classes:
             continue
           
-          rgb_img_path = DATASET_TARGET_PATH+image_path.replace("???", "rgb").replace("***","crop")
-          depth_img_path = DATASET_TARGET_PATH+image_path.replace("???", "rgb").replace("***","depthcrop")
+          rgb_img_path = root+image_path.replace("???", "rgb").replace("***","crop")
+          depth_img_path = root+image_path.replace("???", "rgb").replace("***","depthcrop")
           rgb_img = pil_loader(rgb_img_path)
           depth_img = pil_loader(rgb_img_path)
           imgs_and_labels.append([rgb_img, depth_img, class_label])
@@ -160,7 +160,7 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, DATASET_SOURCE_PATH = "", blacklisted_classes=[], verbose=0):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0):
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
             
@@ -176,11 +176,11 @@ class SynROD(VisionDataset):
         
         imgs_and_labels = []
         missing_couple = 0
-        root, dirs, files = next(os.walk(DATASET_SOURCE_PATH))
+        root, dirs, files = next(os.walk(root))
         for dir_name in dirs:  # Iterate over class-named folder (apple, ball, banana)
           class_label = dir_name
-          depth_folder_path  = os.path.join(DATASET_SOURCE_PATH, dir_name, "depth") 
-          rgb_folder_path  = os.path.join(DATASET_SOURCE_PATH, dir_name, "rgb") 
+          depth_folder_path  = os.path.join(root, dir_name, "depth") 
+          rgb_folder_path  = os.path.join(root, dir_name, "rgb") 
           
           _, _, imgs = next(os.walk(rgb_folder_path))
           for img in imgs:
