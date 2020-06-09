@@ -176,7 +176,7 @@ class SynROD(VisionDataset):
         
         imgs_and_labels = []
         missing_couple = 0
-        root, dirs, files = next(os.walk(root))
+        parent, dirs, files = next(os.walk(root))
         for dir_name in dirs:  # Iterate over class-named folder (apple, ball, banana)
           class_label = dir_name
           depth_folder_path  = os.path.join(root, dir_name, "depth") 
