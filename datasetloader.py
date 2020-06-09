@@ -25,7 +25,7 @@ def pil_loader(path):
 
 class ROD(VisionDataset):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[]):
+    def __init__(self, root, split='train', transform=None, target_transform=None, DATASET_TARGET_PATH = "", blacklisted_classes=[]):
         super(ROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = split # This defines the split you are going to use
@@ -160,7 +160,7 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0):
+    def __init__(self, root, transform=None, target_transform=None, DATASET_SOURCE_PATH = "", blacklisted_classes=[], verbose=0):
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
             
