@@ -73,7 +73,7 @@ class ROD(VisionDataset):
         Args:
             index (int): Index
         Returns:
-            tuple: (sample, target) where target is class_index of the target class.
+            tuple: (sample, depth_image, target) where target is class_index of the target class.
         '''
 
         rgb_image, depth_image, label = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'] # Provide a way to access image and label via index
@@ -84,7 +84,7 @@ class ROD(VisionDataset):
         if self.transform is not None:
             image = self.transform(image)
 
-        return image, label
+        return image, depth_image, label
 
     def __len__(self):
         '''
@@ -211,7 +211,7 @@ class SynROD(VisionDataset):
         Args:
             index (int): Index
         Returns:
-            tuple: (sample, target) where target is class_index of the target class.
+            tuple: (sample,depth_image, target) where target is class_index of the target class.
         '''
 
         rgb_image, depth_image, label = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'] # Provide a way to access image and label via index
@@ -222,7 +222,7 @@ class SynROD(VisionDataset):
         if self.transform is not None:
             image = self.transform(image)
 
-        return image, label
+        return image, depth_image, label
 
     def __len__(self):
         '''
