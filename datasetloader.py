@@ -64,7 +64,7 @@ class ROD(VisionDataset):
           rgb_img = pil_loader(rgb_img_path)
           depth_img = pil_loader(depth_img_path)
           imgs_and_labels.append([rgb_img, depth_img, class_label])
-          print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
+        print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
 
 
         self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth', 'class'])
