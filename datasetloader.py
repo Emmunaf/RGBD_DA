@@ -79,11 +79,14 @@ class ROD(VisionDataset):
         rgb_image, depth_image, label = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'] # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
-
+        
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             image = self.transform(image)
-
+         
+        if self.transform is not None:
+            depth_image = self.transform(depth_image)
+            
         return image, depth_image, label
 
     def __len__(self):
@@ -221,7 +224,10 @@ class SynROD(VisionDataset):
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             image = self.transform(image)
-
+        
+        if self.transform is not None:
+            depth_image = self.transform(depth_image)
+            
         return image, depth_image, label
 
     def __len__(self):
