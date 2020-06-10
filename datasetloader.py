@@ -56,7 +56,7 @@ class ROD(VisionDataset):
           rgb_img_path = root+image_path.replace("???", "rgb").replace("***","crop")
           depth_img_path = root+image_path.replace("???", "rgb").replace("***","depthcrop")
           # Skip if one of the 2 (domains) images is not where it should be
-          if not os.path.isfile(depth_img_path) || not os.path.isfile(rgb_img_path) :
+          if not os.path.isfile(depth_img_path) or not os.path.isfile(rgb_img_path) :
               missing_couple += 1
               if verbose > 0:
                 print("[INFO] Skipping 1 sample because of missing partner")
