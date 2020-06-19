@@ -90,8 +90,8 @@ class ROD(VisionDataset):
         
         # Encode the relative rotation (0, 90, ...)
         le2 = preprocessing.LabelEncoder()
-        self.le2 = le
-        self.data['encoded_relative_rot'] = le.fit_transform(self.data['relative_rotation'])
+        self.le2 = le2
+        self.data['encoded_relative_rot'] = le2.fit_transform(self.data['relative_rotation'])
 
     def __getitem__(self, index):
         '''
@@ -249,8 +249,8 @@ class SynROD(VisionDataset):
         self.data['encoded_class'] = le.fit_transform(self.data['class'])       
         # Encode relative rotation
         le2 = preprocessing.LabelEncoder()
-        self.le2 = le
-        self.data['encoded_relative_rot'] = le.fit_transform(self.data['relative_rotation'])
+        self.le2 = le2
+        self.data['encoded_relative_rot'] = le2.fit_transform(self.data['relative_rotation'])
         
     def __getitem__(self, index):
         '''
