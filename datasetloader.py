@@ -113,7 +113,7 @@ class ROD(VisionDataset):
         if self.transform is not None:
             depth_image = self.transform(depth_image)
             
-        return image, depth_image, label, relative_rotation
+        return rgb_image, depth_image, label, relative_rotation
 
     def __len__(self):
         '''
@@ -272,7 +272,7 @@ class SynROD(VisionDataset):
         if self.transform is not None:
             depth_image = self.transform(depth_image)
             
-        return image, depth_image, label, encoded_relative_rot
+        return rgb_image, depth_image, label, encoded_relative_rot
 
     def __len__(self):
         '''
