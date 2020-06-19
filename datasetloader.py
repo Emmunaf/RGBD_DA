@@ -108,7 +108,7 @@ class ROD(VisionDataset):
         
         # Applies preprocessing when accessing the image
         if self.transform is not None:
-            image = self.transform(image)
+            rgb_image = self.transform(rgb_image)
          
         if self.transform is not None:
             depth_image = self.transform(depth_image)
@@ -267,7 +267,7 @@ class SynROD(VisionDataset):
 
         # Applies preprocessing when accessing the image
         if self.transform is not None:
-            image = self.transform(image)
+            rgb_image = self.transform(rgb_image)
         
         if self.transform is not None:
             depth_image = self.transform(depth_image)
