@@ -298,7 +298,7 @@ class SynROD(VisionDataset):
             depth_image = self.transform(depth_image)
             t_depth_image = self.transform(t_depth_image)
             
-        return rgb_image, depth_image,t_rgb_img, t_depth_img, label, encoded_relative_rot
+        return rgb_image, depth_image,t_rgb_image, t_depth_image, label, encoded_relative_rot
 
     def __len__(self):
         '''
