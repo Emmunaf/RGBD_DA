@@ -196,7 +196,7 @@ class SynROD(VisionDataset):
         params:
         verbose: set a value >1 to have some useful infos.
         pre_prune_ratio: denominator for prepruning (reduce memory footprint). 
-                         Just 1/pre_prune_ratio samples will be loaded from the dataset.
+                         In other words 1/pre_prune_ratio samples will be NOT loaded from the dataset.
         """
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
@@ -248,7 +248,7 @@ class SynROD(VisionDataset):
             
             # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
             # As of now this is *NOT* taken into account
-            if len(imgs_and_labels) % pre_prune_ratio == 0:
+            if not len(imgs_and_labels) % pre_prune_ratio == 0:
                 imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
             else:
                 prepruned += 1
