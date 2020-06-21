@@ -15,6 +15,7 @@ import gc
 
 from random import seed
 from random import randint
+from random import sample
 
 from google.colab import drive
 
@@ -189,14 +190,13 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_prune_ratio=1):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None):
         
         """ Dataloader constructor.
         
         params:
         verbose: set a value >1 to have some useful infos.
-        pre_prune_ratio: denominator for prepruning (reduce memory footprint). 
-                         In other words 1/pre_prune_ratio samples will be NOT loaded from the dataset.
+        n_sample: Load a given number of sample with a random sapling (without replacement) tecnique. Reduce memory footprint.
         """
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
@@ -210,10 +210,10 @@ class SynROD(VisionDataset):
           through the index
         - Labels should start from 0, so for Caltech you will have lables 0...100 (excluding the background class) 
         '''
-        
+        imgs_path = []
         imgs_and_labels = []
         missing_couple = 0
-        prepruned = 0
+        
         parent, dirs, files = next(os.walk(root))
         for dir_name in dirs:  # Iterate over class-named folder (apple, ball, banana)
           class_label = dir_name
@@ -223,7 +223,6 @@ class SynROD(VisionDataset):
           _, _, imgs = next(os.walk(rgb_folder_path))
           for img in imgs:
             rgb_img_path  = os.path.join(rgb_folder_path, img) 
-            rgb_img = pil_loader(rgb_img_path)
             depth_img_path  = os.path.join(depth_folder_path, img) 
             if not os.path.isfile(depth_img_path):
               missing_couple += 1
@@ -232,27 +231,33 @@ class SynROD(VisionDataset):
                 print(depth_img_path, "doesnt exist")
               continue
               # raise Exception("For each rgb image you NEED the depth version too")
-            depth_img = pil_loader(depth_img_path)
-            
-             # Generate random rotations and save the delta
-            seed(42)
-            # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
-            depth_rotation = randint(0, 3) * 90
-            rgb_rotation = randint(0, 3) * 90
-            relative_rotation = depth_rotation - rgb_rotation
-            if relative_rotation < 0:
-              relative_rotation += 360
+            imgs_path.append([rgb_img_path, depth_img_path])  # add rgb/depth rotation?
+        
+        # IF n_samples was set load only a given number of sample (random and without replacement)
+        prepruned = len(imgs_path)
+        if n_samples is not None:
+            imgs_path = random.sample(imgs_path, n_samples)
+        for rgb_img_path, depth_img_path in imgs_path:    
+          depth_img = pil_loader(depth_img_path)
+          rgb_img = pil_loader(rgb_img_path)
 
-            t_rgb_img = rgb_img.rotate(rgb_rotation)
-            t_depth_img = depth_img.rotate(depth_rotation)
-            
-            # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
-            # As of now this is *NOT* taken into account
-            if not len(imgs_and_labels) % pre_prune_ratio == 0:
-                imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
-            else:
-                prepruned += 1
+          # Generate random rotations and save the delta
+          seed(42)
+          # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
+          depth_rotation = randint(0, 3) * 90
+          rgb_rotation = randint(0, 3) * 90
+          relative_rotation = depth_rotation - rgb_rotation
+          if relative_rotation < 0:
+            relative_rotation += 360
+
+          t_rgb_img = rgb_img.rotate(rgb_rotation)
+          t_depth_img = depth_img.rotate(depth_rotation)
+
+          # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
+          # As of now this is *NOT* taken into account
+          imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
           
+        prepruned -= len(imgs_and_labels) 
         print("[INFO] A total of ", missing_couple, "samples were skipped because their depth map it's missing")
         print("[INFO] A total of ", prepruned, "samples were skipped because of the pre_prune_ratio parameters")
 
