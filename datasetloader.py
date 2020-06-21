@@ -65,6 +65,8 @@ class ROD(VisionDataset):
                 print("[INFO] Skipping 1 sample because of missing partner")
               continue
           
+          depth_img = pil_loader(depth_img_path)
+          rgb_img = pil_loader(rgb_img_path)
           # Generate random rotations and save the delta
           seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
