@@ -73,10 +73,10 @@ class ROD(VisionDataset):
           if relative_rotation < 0:
             relative_rotation += 360
             
-          rgb_img = pil_loader(rgb_img_path).rotate(rgb_rotation)
-          depth_img = pil_loader(depth_img_path).rotate(depth_rotation)
-          
-          imgs_and_labels.append([rgb_img, depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+          t_rgb_img = rgb_img.rotate(rgb_rotation)
+          t_depth_img = depth_img.rotate(depth_rotation)
+          imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+
         print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
 
 
@@ -234,10 +234,10 @@ class SynROD(VisionDataset):
             if relative_rotation < 0:
               relative_rotation += 360
 
-            rgb_img = rgb_img.rotate(rgb_rotation)
-            depth_img = depth_img.rotate(depth_rotation)
+            t_rgb_img = rgb_img.rotate(rgb_rotation)
+            t_depth_img = depth_img.rotate(depth_rotation)
 
-            imgs_and_labels.append([rgb_img, depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+            imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
 
           
         print("[INFO] A total of ", missing_couple, "samples were skipped because it's missing of their depth map")
