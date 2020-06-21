@@ -105,7 +105,7 @@ class ROD(VisionDataset):
             tuple: (sample, depth_image, target) where target is class_index of the target class.
         '''
 
-        rgb_image, depth_image,t_rgb_image, t_depth_image, label, relative_rotation = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+        rgb_image, depth_image,t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
         
