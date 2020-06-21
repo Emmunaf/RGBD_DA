@@ -81,7 +81,7 @@ class ROD(VisionDataset):
         print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
 
 
-        self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth', 'class', 'relative_rotation'])
+        self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth','t_rgb', 't_depth', 'class', 'relative_rotation'])
         del(imgs_and_labels)
         gc.collect()
         # USing custom enc, notthe txt given one
@@ -103,18 +103,20 @@ class ROD(VisionDataset):
             tuple: (sample, depth_image, target) where target is class_index of the target class.
         '''
 
-        rgb_image, depth_image, label, relative_rotation = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+        rgb_image, depth_image,t_rgb_img, t_depth_img, label, relative_rotation = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
         
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
-         
+            t_rgb_image = self.transform(t_rgb_image)
+        
         if self.transform is not None:
             depth_image = self.transform(depth_image)
+            t_depth_image = self.transform(t_depth_image)
             
-        return rgb_image, depth_image, label, relative_rotation
+        return rgb_image, depth_image,t_rgb_img, t_depth_img, label, encoded_relative_rot
 
     def __len__(self):
         '''
@@ -261,7 +263,7 @@ class SynROD(VisionDataset):
         print("[INFO] A total of ", missing_couple, "samples were skipped because their depth map it's missing")
         print("[INFO] A total of ", prepruned, "samples were skipped because of the pre_prune_ratio parameters")
 
-        self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth', 'class', 'relative_rotation'])
+        self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth','t_rgb', 't_depth', 'class', 'relative_rotation'])
         
         # Note: Using custom enc, not the txt given one
         le = preprocessing.LabelEncoder()
@@ -281,18 +283,20 @@ class SynROD(VisionDataset):
             tuple: (sample,depth_image, target) where target is class_index of the target class.
         '''
 
-        rgb_image, depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+        rgb_image, depth_image, t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
 
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
+            t_rgb_image = self.transform(t_rgb_image)
         
         if self.transform is not None:
             depth_image = self.transform(depth_image)
+            t_depth_image = self.transform(t_depth_image)
             
-        return rgb_image, depth_image, label, encoded_relative_rot
+        return rgb_image, depth_image,t_rgb_img, t_depth_img, label, encoded_relative_rot
 
     def __len__(self):
         '''
