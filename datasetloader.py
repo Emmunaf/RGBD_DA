@@ -236,7 +236,7 @@ class SynROD(VisionDataset):
         # IF n_samples was set load only a given number of sample (random and without replacement)
         prepruned = len(imgs_path)
         if n_samples is not None:
-            imgs_path = random.sample(imgs_path, n_samples)
+            imgs_path = sample(imgs_path, n_samples)
         for rgb_img_path, depth_img_path in imgs_path:    
           depth_img = pil_loader(depth_img_path)
           rgb_img = pil_loader(rgb_img_path)
