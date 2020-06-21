@@ -189,7 +189,15 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_prune_ratio=1):
+        
+        """ Dataloader constructor.
+        
+        params:
+        verbose: set a value >1 to have some useful infos.
+        pre_prune_ratio: denominator for prepruning (reduce memory footprint). 
+                         Just 1/pre_prune_ratio samples will be loaded from the dataset.
+        """
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
             
@@ -205,6 +213,7 @@ class SynROD(VisionDataset):
         
         imgs_and_labels = []
         missing_couple = 0
+        prepruned = 0
         parent, dirs, files = next(os.walk(root))
         for dir_name in dirs:  # Iterate over class-named folder (apple, ball, banana)
           class_label = dir_name
@@ -236,14 +245,20 @@ class SynROD(VisionDataset):
 
             t_rgb_img = rgb_img.rotate(rgb_rotation)
             t_depth_img = depth_img.rotate(depth_rotation)
-
-            imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
-
+            
+            # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
+            # As of now this is *NOT* taken into account
+            if len(imgs_and_labels) % pre_prune_ratio == 0:
+                imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+            else:
+                prepruned += 1
           
-        print("[INFO] A total of ", missing_couple, "samples were skipped because it's missing of their depth map")
+        print("[INFO] A total of ", missing_couple, "samples were skipped because their depth map it's missing")
+        print("[INFO] A total of ", prepruned, "samples were skipped because of the pre_prune_ratio parameters")
+
         self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth', 'class', 'relative_rotation'])
         
-        # USing custom enc, notthe txt given one
+        # Note: Using custom enc, not the txt given one
         le = preprocessing.LabelEncoder()
         self.le = le
         self.data['encoded_class'] = le.fit_transform(self.data['class'])       
