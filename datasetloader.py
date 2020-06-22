@@ -233,13 +233,13 @@ class SynROD(VisionDataset):
                 print(depth_img_path, "doesnt exist")
               continue
               # raise Exception("For each rgb image you NEED the depth version too")
-            imgs_path.append([rgb_img_path, depth_img_path])  # add rgb/depth rotation?
+            imgs_path.append([rgb_img_path, depth_img_path, class_label])  # add rgb/depth rotation?
         
         # IF n_samples was set load only a given number of sample (random and without replacement)
         prepruned = len(imgs_path)
         if n_samples is not None:
             imgs_path = sample(imgs_path, n_samples)
-        for rgb_img_path, depth_img_path in imgs_path:    
+        for rgb_img_path, depth_img_path, class_label in imgs_path:    
           depth_img = pil_loader(depth_img_path)
           rgb_img = pil_loader(rgb_img_path)
 
