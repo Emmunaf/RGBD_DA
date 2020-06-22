@@ -54,6 +54,8 @@ class ROD(VisionDataset):
           image_path, classN = line
           class_label = image_path.split('/')[1]
           if class_label in blacklisted_classes:
+            if verbose > 0:
+              print("[INFO] Skipping 1 class because of blacklist param. Skipped class: ", class_label)
             continue
           
           rgb_img_path = root+image_path.replace("???", "rgb").replace("***","crop")
@@ -222,10 +224,9 @@ class SynROD(VisionDataset):
           depth_folder_path  = os.path.join(root, dir_name, "depth") 
           rgb_folder_path  = os.path.join(root, dir_name, "rgb") 
           if class_label in blacklisted_classes:
-            print("No", class_label)
+            if verbose > 0:
+              print("[INFO] Skipping 1 class because of blacklist param. Skipped class: ", class_label)
             continue
-          else:
-            print("Yes", class_label)
           _, _, imgs = next(os.walk(rgb_folder_path))
           for img in imgs:
             rgb_img_path  = os.path.join(rgb_folder_path, img) 
