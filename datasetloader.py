@@ -222,7 +222,10 @@ class SynROD(VisionDataset):
           depth_folder_path  = os.path.join(root, dir_name, "depth") 
           rgb_folder_path  = os.path.join(root, dir_name, "rgb") 
           if class_label in blacklisted_classes:
+            print("No", class_label)
             continue
+          else:
+            print("Yes", class_label)
           _, _, imgs = next(os.walk(rgb_folder_path))
           for img in imgs:
             rgb_img_path  = os.path.join(rgb_folder_path, img) 
