@@ -29,7 +29,7 @@ def pil_loader(path):
 
 class ROD(VisionDataset):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0):
+    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_rotation=False):
         super(ROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = split # This defines the split you are going to use
@@ -69,6 +69,8 @@ class ROD(VisionDataset):
           
           depth_img = pil_loader(depth_img_path)
           rgb_img = pil_loader(rgb_img_path)
+
+
           # Generate random rotations and save the delta
           seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
@@ -77,10 +79,14 @@ class ROD(VisionDataset):
           relative_rotation = depth_rotation - rgb_rotation
           if relative_rotation < 0:
             relative_rotation += 360
-            
-          t_rgb_img = rgb_img.rotate(rgb_rotation)
-          t_depth_img = depth_img.rotate(depth_rotation)
-          imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+
+          if pre_rotation:
+            t_rgb_img = rgb_img.rotate(rgb_rotation)
+            t_depth_img = depth_img.rotate(depth_rotation)
+            imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+          else:
+            imgs_and_labels.append([rgb_img, depth_img, rgb_rotation, depth_rotation, class_label, relative_rotation])  # add rgb/depth rotation?
+
 
         print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
 
@@ -106,11 +112,11 @@ class ROD(VisionDataset):
         Returns:
             tuple: (sample, depth_image, target) where target is class_index of the target class.
         '''
-
-        rgb_image, depth_image,t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
-                           # Image should be a PIL Image
-                           # label can be int
-        
+        if pre_rotation:
+            rgb_image, depth_image,t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+        else:
+            rgb_image, depth_image, rgb_rotation, depth_rotation, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+            t_rgb_image, t_depth_image = rgb_image.rotate(rgb_rotation), depth_image.rotate(depth_rotation)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
@@ -194,7 +200,7 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False):
         
         """ Dataloader constructor.
         
@@ -257,16 +263,18 @@ class SynROD(VisionDataset):
           if relative_rotation < 0:
             relative_rotation += 360
 
-          t_rgb_img = rgb_img.rotate(rgb_rotation)
-          t_depth_img = depth_img.rotate(depth_rotation)
+          if pre_rotation:
+              t_rgb_img, t_depth_img = rgb_img.rotate(rgb_rotation), depth_img.rotate(depth_rotation)
+              # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
+              # As of now this is *NOT* taken into account
+              imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
+              prepruned -= len(imgs_and_labels) 
+              print("[INFO] A total of ", prepruned, "samples were skipped because of the pre_prune_ratio parameters")
+          else:
+              imgs_and_labels.append([rgb_img, depth_img, rgb_rotation, depth_rotation, class_label, relative_rotation])  # add rgb/depth rotation?
 
-          # Note: Can be better to reduce in a way that resolve the unbalancing of classes?
-          # As of now this is *NOT* taken into account
-          imgs_and_labels.append([rgb_img, depth_img, t_rgb_img, t_depth_img, class_label, relative_rotation])  # add rgb/depth rotation?
-          
-        prepruned -= len(imgs_and_labels) 
+        del(imgs_path)
         print("[INFO] A total of ", missing_couple, "samples were skipped because their depth map it's missing")
-        print("[INFO] A total of ", prepruned, "samples were skipped because of the pre_prune_ratio parameters")
 
         self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth','t_rgb', 't_depth', 'class', 'relative_rotation'])
         
@@ -287,11 +295,11 @@ class SynROD(VisionDataset):
         Returns:
             tuple: (sample,depth_image, target) where target is class_index of the target class.
         '''
-
-        rgb_image, depth_image, t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
-                           # Image should be a PIL Image
-                           # label can be int
-
+        if pre_rotation:
+            rgb_image, depth_image, t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+        else:
+            rgb_image, depth_image, rgb_rotation, depth_rotation, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
+            t_rgb_image, t_depth_image = rgb_image.rotate(rgb_rotation), depth_image.rotate(depth_rotation)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
@@ -372,3 +380,4 @@ class SynROD(VisionDataset):
         
         class_mapping = {self.le.transform(v):v for v in self.le.classes_}
         return class_mapping
+    
