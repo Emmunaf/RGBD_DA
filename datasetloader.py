@@ -34,7 +34,7 @@ class ROD(VisionDataset):
 
         self.split = split # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
-            
+        self.pre_rotation = pre_rotation
         #self.blacklist_classes = blacklisted_classes  # Needed just is using custom mapper
         '''
         - Here you should implement the logic for reading the splits files and accessing elements
@@ -112,7 +112,7 @@ class ROD(VisionDataset):
         Returns:
             tuple: (sample, depth_image, target) where target is class_index of the target class.
         '''
-        if pre_rotation:
+        if self.pre_rotation:
             rgb_image, depth_image,t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'],  self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
         else:
             rgb_image, depth_image, rgb_rotation, depth_rotation, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
@@ -209,7 +209,7 @@ class SynROD(VisionDataset):
         n_sample: Load a given number of sample with a random sapling (without replacement) tecnique. Reduce memory footprint.
         """
         super(SynROD, self).__init__(root, transform=transform, target_transform=target_transform)
-
+        self.pre_rotation = pre_rotation
             
         #self.blacklist_classes = blacklisted_classes  # Needed just is using custom mapper
         '''
@@ -295,7 +295,7 @@ class SynROD(VisionDataset):
         Returns:
             tuple: (sample,depth_image, target) where target is class_index of the target class.
         '''
-        if pre_rotation:
+        if self.pre_rotation:
             rgb_image, depth_image, t_rgb_image, t_depth_image, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
         else:
             rgb_image, depth_image, rgb_rotation, depth_rotation, label, encoded_relative_rot = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'],self.data.iloc[index]['t_rgb'], self.data.iloc[index]['t_depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['encoded_relative_rot'] # Provide a way to access image and label via index
