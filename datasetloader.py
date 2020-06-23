@@ -82,10 +82,7 @@ class ROD(VisionDataset):
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
                 continue
-          if verbose > 0 and (min_height > 0 or min_width > 0):
-              print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
-              print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
-            
+
           # Generate random rotations and save the delta
           seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
@@ -102,7 +99,9 @@ class ROD(VisionDataset):
           else:
             imgs_and_labels.append([rgb_img, depth_img, rgb_rotation, depth_rotation, class_label, relative_rotation])  # add rgb/depth rotation?
 
-
+        if min_height > 0 or min_width > 0:
+          print("[INFO] A total of ", skipped_minw, " samples were skipped because of of min_width parameter")
+          print("[INFO] A total of ", skipped_minh, " samples were skipped because of of min_height parameter")
         print("[INFO] A total of ", missing_couple, "samples were skipped because of a missing partner domain")
 
 
@@ -283,10 +282,7 @@ class SynROD(VisionDataset):
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
                 continue
-          if verbose > 0 and (min_height > 0 or min_width > 0):
-              print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
-              print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
-
+          
           # Generate random rotations and save the delta
           seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
@@ -307,6 +303,9 @@ class SynROD(VisionDataset):
               imgs_and_labels.append([rgb_img, depth_img, rgb_rotation, depth_rotation, class_label, relative_rotation])  # add rgb/depth rotation?
 
         del(imgs_path)
+        if min_height > 0 or min_width > 0:
+          print("[INFO] A total of ", skipped_minw, " samples were skipped because of of min_width parameter")
+          print("[INFO] A total of ", skipped_minh, " samples were skipped because of of min_height parameter")
         print("[INFO] A total of ", missing_couple, "samples were skipped because their depth map it's missing")
 
         self.data = pd.DataFrame(imgs_and_labels, columns=['rgb', 'depth','t_rgb', 't_depth', 'class', 'relative_rotation'])
