@@ -78,7 +78,7 @@ class ROD(VisionDataset):
                 skipped_minw += 1
                 if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                     skipped_minh += 1
-            continue
+                continue
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
             continue
@@ -279,7 +279,7 @@ class SynROD(VisionDataset):
                 skipped_minw += 1
                 if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                     skipped_minh += 1
-            continue
+                continue
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
             continue
