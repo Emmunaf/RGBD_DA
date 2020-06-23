@@ -81,7 +81,7 @@ class ROD(VisionDataset):
                 continue
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
-            continue
+                continue
           if verbose > 0 and (min_height > 0 or min_width > 0):
               print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
               print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
@@ -282,7 +282,7 @@ class SynROD(VisionDataset):
                 continue
           if min_height > 0 and (rheight <= min_height or dheight <= min_height):
                 skipped_minh += 1
-            continue
+                continue
           if verbose > 0 and (min_height > 0 or min_width > 0):
               print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
               print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
