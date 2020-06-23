@@ -29,7 +29,7 @@ def pil_loader(path):
 
 class ROD(VisionDataset):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_rotation=False):
+    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_rotation=False, min_width=0, min_height=0):
         super(ROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = split # This defines the split you are going to use
@@ -47,7 +47,7 @@ class ROD(VisionDataset):
         split_path = os.path.join(root, split+".txt")  # 
         split_file = np.loadtxt(split_path, dtype='str')
         
-
+        skipped_minh, skipped_minw = 0, 0
         imgs_and_labels = []
         missing_couple = 0
         for line in split_file:
@@ -67,10 +67,25 @@ class ROD(VisionDataset):
                 print("[INFO] Skipping 1 sample because of missing partner")
               continue
           
+          # Load the image
           depth_img = pil_loader(depth_img_path)
           rgb_img = pil_loader(rgb_img_path)
-
-
+          rwidth, rheight = rgb_img.size
+          dwidth, dheight = depth_img.size
+        
+          # Apply min_width and min_height filter if the arg was set
+          if min_width > 0 and (rwidth <= min_width or dwidth <= min_width):
+                skipped_minw += 1
+                if min_height > 0 and (rheight <= min_height or dheight <= min_height):
+                    skipped_minh += 1
+            continue
+          if min_height > 0 and (rheight <= min_height or dheight <= min_height):
+                skipped_minh += 1
+            continue
+          if verbose > 0 and (min_height > 0 or min_width > 0):
+              print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
+              print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
+            
           # Generate random rotations and save the delta
           seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
@@ -200,7 +215,7 @@ class ROD(VisionDataset):
 
 class SynROD(VisionDataset):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False, min_width=0, min_height=0):
         
         """ Dataloader constructor.
         
@@ -250,9 +265,27 @@ class SynROD(VisionDataset):
         prepruned = len(imgs_path)
         if n_samples is not None:
             imgs_path = sample(imgs_path, n_samples)
+        
+        skipped_minh, skipped_minw = 0, 0
         for rgb_img_path, depth_img_path, class_label in imgs_path:    
+          # Load the image
           depth_img = pil_loader(depth_img_path)
           rgb_img = pil_loader(rgb_img_path)
+          rwidth, rheight = rgb_img.size
+          dwidth, dheight = depth_img.size
+        
+          # Apply min_width and min_height filter if the arg was set
+          if min_width > 0 and (rwidth <= min_width or dwidth <= min_width):
+                skipped_minw += 1
+                if min_height > 0 and (rheight <= min_height or dheight <= min_height):
+                    skipped_minh += 1
+            continue
+          if min_height > 0 and (rheight <= min_height or dheight <= min_height):
+                skipped_minh += 1
+            continue
+          if verbose > 0 and (min_height > 0 or min_width > 0):
+              print("[INFO] Skipped ", skipped_minw, " samples because of min_width parameter")
+              print("[INFO] Skipped ", skipped_minh, " samples because of min_height parameter")
 
           # Generate random rotations and save the delta
           seed(42)
