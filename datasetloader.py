@@ -16,6 +16,7 @@ import gc
 from random import seed
 from random import randint
 from random import sample
+import numpy as np
 
 from google.colab import drive
 
@@ -52,7 +53,8 @@ class ROD(VisionDataset):
         missing_couple = 0
         seed(42)
         if n_samples is not None and n_samples > 0:
-            split_file = sample(split_file, n_samples)
+            #split_file = sample(split_file, n_samples)
+            np.random.choice(split_file, n_samples)
         for line in split_file:
           image_path, classN = line
           class_label = image_path.split('/')[1]
