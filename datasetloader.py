@@ -29,7 +29,7 @@ def pil_loader(path):
 
 class ROD(VisionDataset):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0, pre_rotation=False, min_width=0, min_height=0):
+    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0,n_samples=0, pre_rotation=False, min_width=0, min_height=0):
         super(ROD, self).__init__(root, transform=transform, target_transform=target_transform)
 
         self.split = split # This defines the split you are going to use
@@ -51,6 +51,8 @@ class ROD(VisionDataset):
         imgs_and_labels = []
         missing_couple = 0
         seed(42)
+        if n_samples is not None and n_samples > 0:
+            split_file = sample(split_file, n_samples)
         for line in split_file:
           image_path, classN = line
           class_label = image_path.split('/')[1]
@@ -264,7 +266,7 @@ class SynROD(VisionDataset):
         
         # IF n_samples was set load only a given number of sample (random and without replacement)
         prepruned = len(imgs_path)
-        if n_samples is not None:
+        if n_samples is not None and n_samples > 0:
             imgs_path = sample(imgs_path, n_samples)
         
         skipped_minh, skipped_minw = 0, 0
