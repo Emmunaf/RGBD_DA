@@ -50,6 +50,7 @@ class ROD(VisionDataset):
         skipped_minh, skipped_minw = 0, 0
         imgs_and_labels = []
         missing_couple = 0
+        seed(42)
         for line in split_file:
           image_path, classN = line
           class_label = image_path.split('/')[1]
@@ -84,7 +85,6 @@ class ROD(VisionDataset):
                 continue
 
           # Generate random rotations and save the delta
-          seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
           depth_rotation = randint(0, 3) * 90
           rgb_rotation = randint(0, 3) * 90
@@ -238,6 +238,8 @@ class SynROD(VisionDataset):
         imgs_and_labels = []
         missing_couple = 0
         
+        seed(42)
+        
         parent, dirs, files = next(os.walk(root))
         for dir_name in dirs:  # Iterate over class-named folder (apple, ball, banana)
           class_label = dir_name
@@ -284,7 +286,6 @@ class SynROD(VisionDataset):
                 continue
           
           # Generate random rotations and save the delta
-          seed(42)
           # NOTE: As of now assume that the depth  and rgb images have always the same rotation applied
           depth_rotation = randint(0, 3) * 90
           rgb_rotation = randint(0, 3) * 90
