@@ -77,7 +77,11 @@ class ROD(VisionDataset):
           rgb_img = pil_loader(rgb_img_path)
           rwidth, rheight = rgb_img.size
           dwidth, dheight = depth_img.size
-        
+          if rwidth > 256 or rheight > 256:
+            rgb_img = rgb_img.resize((256, 256))
+          if dwidth > 256 or dheight > 256:
+            depth_img = depth_img.resize((256, 256))
+          
           # Apply min_width and min_height filter if the arg was set
           if min_width > 0 and (rwidth <= min_width or dwidth <= min_width):
                 skipped_minw += 1
@@ -278,7 +282,11 @@ class SynROD(VisionDataset):
           rgb_img = pil_loader(rgb_img_path)
           rwidth, rheight = rgb_img.size
           dwidth, dheight = depth_img.size
-        
+          if rwidth > 256 or rheight > 256:
+            rgb_img = rgb_img.resize((256, 256))
+          if dwidth > 256 or dheight > 256:
+            depth_img = depth_img.resize((256, 256))
+          
           # Apply min_width and min_height filter if the arg was set
           if min_width > 0 and (rwidth <= min_width or dwidth <= min_width):
                 skipped_minw += 1
