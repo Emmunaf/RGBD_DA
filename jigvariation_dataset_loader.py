@@ -156,7 +156,7 @@ class SynROD_patch(VisionDataset):
         n_sample: Load a given number of sample with a random sapling (without replacement) tecnique. Reduce memory footprint.
         """
         
-        super(SynROD_patch, self).__init__(self, root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
+        super(SynROD_patch, self).__init__(self, root, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
         assert(n_rand_rotate <= n_rows*n_rows)
