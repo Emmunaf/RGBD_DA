@@ -1,4 +1,3 @@
-from .datasetloader import *
 from torchvision.datasets import VisionDataset
 
 from PIL import Image
@@ -41,25 +40,31 @@ def crop(img, i, n_rows):
 '''
 
 def patchize(img, rand_rot_label):
-  new_im = Image.new('RGB', (256, 256))
+  w, h = img.size
+  new_im = Image.new('RGB', (w, h))
 
   i, j = 0, 0
+  
   images_per_row = sqrt(len(rand_rot_label))
-  patch_height = img.size//images_per_row
+  patch_height = int( h//images_per_row )
   patch_width = patch_height
 
   for num, rotation in enumerate(rand_rot_label):
       if num%images_per_row==0:
           i=0
+
       # resize my opened image, so it is no bigger than 100,100
       #patch.thumbnail((scaled_img_width,scaled_img_height))
       #Iterate through a 4 by 4 grid with 100 spacing, to place my image
-      y_cord = (j//images_per_row)*patch_height
-      patch = img.crop(i, y_cord, i+patch_width, y_cord+patch_height)
-      new_im.paste(patch, (i,y_cord))
+      y_cord = int ( (j//images_per_row)*patch_height )
+      patch = img.crop((i, y_cord, i+patch_width, y_cord+patch_height))
+      new_patch = patch.rotate(rotation*90)
+      #print(rand_rot_label, " R:", rotation)
+      new_im.paste(new_patch, (i,y_cord))
       #print(i, y_cord)
       i = (i+patch_width) # +padding
       j += 1
+  return new_im
 
 def jig_encode(rand_rot_label):
   """ Encode a list of int in the range 0,3 to a single integer
@@ -89,7 +94,7 @@ def jig_decode(enc_rot_label, n_rows):
 class ROD_patch(ROD):
 
     def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0,n_samples=0, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2):
-        super(ROD_quarter, self).__init__(self, root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
+        super(ROD_quarter, self).__init__(root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         # 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
@@ -116,12 +121,12 @@ class ROD_patch(ROD):
             enc_rand_rot_label = jig_encode(patch_rotation_list)
             patch_label.append(enc_rand_rot_label)
 
-        self.data["patch_rotations"] = patch_label
+        self.data["patch_rotations_label"] = patch_label
 
-        # Encode the relative rotation (0, 90, ...)
+        # Encode the relative rotation (0, 1, .. ,255) if  n_rows=2 
         le2 = preprocessing.LabelEncoder()
         self.le2 = le2
-        self.data['encoded_patch_rotations'] = self.le2.fit_transform(self.data["patch_rotations"])
+        self.data['encoded_patch_rotations'] = self.le2.fit_transform(self.data["patch_rotations_label"])
 
     def __getitem__(self, index):
         '''
@@ -132,8 +137,10 @@ class ROD_patch(ROD):
             tuple: (rgb_image, depth_image, enc_label, enc_patch_rotations) where target is class_index of the target class.
         '''
 
-        rgb_image, depth_image, label, patch_rotations, enc_patch_rotations = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['patch_rotations'], self.data.iloc[index]['encoded_patch_rotations'] # Provide a way to access image and label via index
-
+        rgb_image, depth_image, label, patch_rotations_label, enc_patch_rotations = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['patch_rotations_label'], self.data.iloc[index]['encoded_patch_rotations'] # Provide a way to access image and label via index
+        
+        patch_rotations = jig_decode(patch_rotations_label, self.n_rows)
+        #print(patch_rotations)
         t_depth_image =  patchize(depth_image, patch_rotations)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
@@ -144,8 +151,11 @@ class ROD_patch(ROD):
             
         return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
 
+def _decode_enc_rotation(self, enc_patch_rotations):
+  """enc_patch_rotations given as list, use [x] for single value"""
+        return jig_decode(self.le2.inverse_transform(enc_patch_rotations), self.n_rows)
 
-class SynROD_patch(VisionDataset):
+class SynROD_patch(SynROD):
 
     def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2):
         
@@ -156,7 +166,7 @@ class SynROD_patch(VisionDataset):
         n_sample: Load a given number of sample with a random sapling (without replacement) tecnique. Reduce memory footprint.
         """
         
-        super(SynROD_patch, self).__init__(self, root, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
+        super(SynROD_patch, self).__init__(root, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
         assert(n_rand_rotate <= n_rows*n_rows)
@@ -182,12 +192,12 @@ class SynROD_patch(VisionDataset):
             enc_rand_rot_label = jig_encode(patch_rotation_list)
             patch_label.append(enc_rand_rot_label)
 
-        self.data["patch_rotations"] = patch_label
+        self.data["patch_rotations_label"] = patch_label  # This is an integer encoded value 
 
         # Encode the relative rotation (0, 90, ...)
         le2 = preprocessing.LabelEncoder()
-        self.le2 = le2
-        self.data['encoded_patch_rotations'] = self.le2.fit_transform(self.data["patch_rotations"])
+        self.le2 =  preprocessing.LabelEncoder()
+        self.data['encoded_patch_rotations'] = self.le2.fit_transform(self.data["patch_rotations_label"])
         
     def __getitem__(self, index):
         '''
@@ -198,14 +208,18 @@ class SynROD_patch(VisionDataset):
             tuple: (sample,depth_image, target) where target is class_index of the target class.
         '''
 
-        rgb_image, depth_image, label, patch_rotations, enc_patch_rotations = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['patch_rotations'], self.data.iloc[index]['encoded_patch_rotations'] # Provide a way to access image and label via index
-
+        rgb_image, depth_image, label, patch_rotations_label, enc_patch_rotations = self.data.iloc[index]['rgb'], self.data.iloc[index]['depth'], self.data.iloc[index]['encoded_class'], self.data.iloc[index]['patch_rotations_label'], self.data.iloc[index]['encoded_patch_rotations'] # Provide a way to access image and label via index
+        patch_rotations = jig_decode(patch_rotations_label, self.n_rows)
         t_depth_image =  patchize(depth_image, patch_rotations)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
             #t_rgb_image = self.transform(t_rgb_image)
             depth_image = self.transform(depth_image)
-            t_depth_image = self.transform(t_depth_image)            
+            t_depth_image = self.transform(t_depth_image)          
             
         return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
+
+    def _decode_enc_rotation(self, enc_patch_rotations):
+      """enc_patch_rotations given as list, use [x] for single value"""
+        return jig_decode(self.le2.inverse_transform(enc_patch_rotations), self.n_rows)
