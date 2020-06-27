@@ -1,3 +1,5 @@
+from .datasetloader import *
+
 from torchvision.datasets import VisionDataset
 
 from PIL import Image
@@ -94,7 +96,7 @@ def jig_decode(enc_rot_label, n_rows):
 class ROD_patch(ROD):
 
     def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0,n_samples=0, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2):
-        super(ROD_quarter, self).__init__(root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
+        super(ROD_patch, self).__init__(root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         # 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
@@ -151,8 +153,8 @@ class ROD_patch(ROD):
             
         return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
 
-def _decode_enc_rotation(self, enc_patch_rotations):
-  """enc_patch_rotations given as list, use [x] for single value"""
+    def _decode_enc_rotation(self, enc_patch_rotations):
+        """enc_patch_rotations given as list, use [x] for single value"""
         return jig_decode(self.le2.inverse_transform(enc_patch_rotations), self.n_rows)
 
 class SynROD_patch(SynROD):
@@ -221,5 +223,6 @@ class SynROD_patch(SynROD):
         return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
 
     def _decode_enc_rotation(self, enc_patch_rotations):
-      """enc_patch_rotations given as list, use [x] for single value"""
+        """enc_patch_rotations given as list, use [x] for single value"""
+
         return jig_decode(self.le2.inverse_transform(enc_patch_rotations), self.n_rows)
