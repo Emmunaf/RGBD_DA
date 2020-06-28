@@ -181,10 +181,11 @@ class ROD_patch(ROD):
     
     def get_howmany_rot_labels(self, enc_patch_rotations):
         p2_labels = np.zeros(enc_patch_rotations.shape, dtype=np.int32)
-        rotations = self._decode_enc_rotation([enc_rotations])
-        for rotation in rotations:
-          if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
-            p2_labels[i] += 1 
+        for i, enc_rotations in enumerate(enc_patch_rotations):        
+            rotations = self._decode_enc_rotation([enc_rotations])
+            for rotation in rotations:
+              if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
+                p2_labels[i] += 1 
             
 class SynROD_patch(SynROD):
 
@@ -268,7 +269,8 @@ class SynROD_patch(SynROD):
     
     def get_howmany_rot_labels(self, enc_patch_rotations):
         p2_labels = np.zeros(enc_patch_rotations.shape, dtype=np.int32)
-        rotations = self._decode_enc_rotation([enc_rotations])
-        for rotation in rotations:
-          if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
-            p2_labels[i] += 1 
+        for i, enc_rotations in enumerate(enc_patch_rotations):        
+            rotations = self._decode_enc_rotation([enc_rotations])
+            for rotation in rotations:
+              if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
+                p2_labels[i] += 1 
