@@ -110,12 +110,12 @@ def jig_decode(enc_rot_label, n_rows):
      
 class ROD_patch(ROD):
 
-    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0,n_samples=0, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2, depth_to_gray_p=0.0):
+    def __init__(self, root, split='train', transform=None, target_transform=None, blacklisted_classes=[], verbose=0,n_samples=0, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2, depth_to_gray_p=0.0, patchize_rgb_too=False):
         super(ROD_patch, self).__init__(root, split=split, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         # 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
-        self.depth_to_gray_p = depth_to_gray_p
+        self.depth_to_gray_p, self.patchize_rgb_too = depth_to_gray_p, patchize_rgb_too
         
         assert(n_rand_rotate <= n_rows*n_rows)
 
@@ -166,6 +166,9 @@ class ROD_patch(ROD):
         if self.depth_to_gray_p > 0.0 and self.depth_to_gray_p <= 1.0:
             if make_decision(self.depth_to_gray_p):
               t_depth_image = pil_to_gray(t_depth_image)
+        # Apply patch composition also to the rgb image if patchize_rgb_too was set
+        if self.patchize_rgb_too:
+            t_rgb_image =  patchize(rgb_image, patch_rotations)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
@@ -173,7 +176,13 @@ class ROD_patch(ROD):
             depth_image = self.transform(depth_image)
             t_depth_image = self.transform(t_depth_image)            
             
-        return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
+        if self.patchize_rgb_too:
+            t_rgb_image =  patchize(rgb_image, patch_rotations)
+            if self.transform is not None:
+                t_rgb_image = self.transform(t_rgb_image)
+            return rgb_image, depth_image, t_depth_image,t_rgb_image, label, enc_patch_rotations
+        else:
+            return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
 
     def _decode_enc_rotation(self, enc_patch_rotations):
         """enc_patch_rotations given as list, use [x] for single value"""
@@ -190,7 +199,7 @@ class ROD_patch(ROD):
     
 class SynROD_patch(SynROD):
 
-    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2, depth_to_gray_p=0.0):
+    def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2, depth_to_gray_p=0.0, patchize_rgb_too=False):
         
         """ Dataloader constructor.
         
@@ -205,7 +214,7 @@ class SynROD_patch(SynROD):
         super(SynROD_patch, self).__init__(root, transform=transform, target_transform=target_transform, blacklisted_classes=blacklisted_classes, verbose=verbose,n_samples=n_samples, pre_rotation=pre_rotation, min_width=min_width, min_height=min_height)
 
         self.n_rows, self.n_rand_rotate = n_rows, n_rand_rotate
-        self.depth_to_gray_p = depth_to_gray_p
+        self.depth_to_gray_p, self.patchize_rgb_too = depth_to_gray_p, patchize_rgb_too
         
         assert(n_rand_rotate <= n_rows*n_rows)
 
@@ -254,14 +263,22 @@ class SynROD_patch(SynROD):
         if self.depth_to_gray_p > 0.0 and self.depth_to_gray_p <= 1.0:
             if make_decision(self.depth_to_gray_p):
               t_depth_image = pil_to_gray(t_depth_image)
+        # Apply patch composition also to the rgb image if patchize_rgb_too was set
+        if self.patchize_rgb_too:
+            t_rgb_image =  patchize(rgb_image, patch_rotations)
         # Applies preprocessing when accessing the image
         if self.transform is not None:
             rgb_image = self.transform(rgb_image)
-            #t_rgb_image = self.transform(t_rgb_image)
             depth_image = self.transform(depth_image)
             t_depth_image = self.transform(t_depth_image)          
             
-        return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
+        if self.patchize_rgb_too:
+            t_rgb_image =  patchize(rgb_image, patch_rotations)
+            if self.transform is not None:
+                t_rgb_image = self.transform(t_rgb_image)
+            return rgb_image, depth_image, t_depth_image,t_rgb_image, label, enc_patch_rotations
+        else:
+            return rgb_image, depth_image, t_depth_image, label, enc_patch_rotations
 
     def _decode_enc_rotation(self, enc_patch_rotations):
         """enc_patch_rotations given as list, use [x] for single value"""
