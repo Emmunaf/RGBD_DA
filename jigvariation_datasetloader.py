@@ -26,11 +26,20 @@ from google.colab import drive
 
 
 def pil_loader(path):
+    """Open path as file (3 channel RGB)"""
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
     with open(path, 'rb') as f:
         img = Image.open(f)
         return img.convert('RGB')
 
+def pil_to_gray(img, alpha=False):
+    """Returns the given (PIL) img input as grayscale image, with or without alpha"""
+    
+    if alpha:
+        return img.convert('LA')
+    else:
+        return img.convert('L')
+    
 '''
 def crop(img, i, n_rows):
     """Returns the cropped i_th image obtained by applying a n_rows*n_rows grid split"""
