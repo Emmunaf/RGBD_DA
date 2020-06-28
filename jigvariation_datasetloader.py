@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 import gc
 
 from random import seed
-from random import randint
+from random import randint, random
 from random import sample
 import numpy as np
 
@@ -39,7 +39,13 @@ def pil_to_gray(img, alpha=False):
         return img.convert('LA')
     else:
         return img.convert('L')
-    
+ 
+import random
+
+def make_decision(probability):
+    """Return true or false based on the given probability"""
+    return random() < probability
+
 '''
 def crop(img, i, n_rows):
     """Returns the cropped i_th image obtained by applying a n_rows*n_rows grid split"""
