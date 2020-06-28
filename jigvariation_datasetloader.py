@@ -39,7 +39,7 @@ def pil_to_gray(img, alpha=False):
     if alpha:
         return img.convert('LA')
     else:
-        return img.convert('L')
+        return img.convert('L').convert('RGB')
  
 
 def make_decision(probability):
