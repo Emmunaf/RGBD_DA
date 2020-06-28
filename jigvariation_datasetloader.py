@@ -16,7 +16,8 @@ from sklearn.model_selection import train_test_split
 import gc
 
 from random import seed
-from random import randint, random
+from random import randint
+from random import random
 from random import sample
 import numpy as np
 
@@ -40,7 +41,6 @@ def pil_to_gray(img, alpha=False):
     else:
         return img.convert('L')
  
-import random
 
 def make_decision(probability):
     """Return true or false based on the given probability"""
