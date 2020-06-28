@@ -186,7 +186,8 @@ class ROD_patch(ROD):
             for rotation in rotations:
               if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
                 p2_labels[i] += 1 
-            
+        return p2_labels
+    
 class SynROD_patch(SynROD):
 
     def __init__(self, root, transform=None, target_transform=None, blacklisted_classes=[], verbose=0, n_samples=None, pre_rotation=False, min_width=0, min_height=0, n_rows=2, n_rand_rotate=2, depth_to_gray_p=0.0):
@@ -274,3 +275,4 @@ class SynROD_patch(SynROD):
             for rotation in rotations:
               if rotation > 0:  # Note: rotation is an array (1 elemnt), but it's ok to check this way
                 p2_labels[i] += 1 
+        return p2_labels
