@@ -177,7 +177,6 @@ class ROD_patch(ROD):
             t_depth_image = self.transform(t_depth_image)            
             
         if self.patchize_rgb_too:
-            t_rgb_image =  patchize(rgb_image, patch_rotations)
             if self.transform is not None:
                 t_rgb_image = self.transform(t_rgb_image)
             return rgb_image, depth_image, t_depth_image,t_rgb_image, label, enc_patch_rotations
@@ -273,7 +272,6 @@ class SynROD_patch(SynROD):
             t_depth_image = self.transform(t_depth_image)          
             
         if self.patchize_rgb_too:
-            t_rgb_image =  patchize(rgb_image, patch_rotations)
             if self.transform is not None:
                 t_rgb_image = self.transform(t_rgb_image)
             return rgb_image, depth_image, t_depth_image,t_rgb_image, label, enc_patch_rotations
